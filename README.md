@@ -7,6 +7,8 @@ This is a stripped down version of XFOIL, presented in the form of a Python modu
  the XFOIl executable. Eliminating the need for constant disk I/O operations can significantly speed up parallel 
  frameworks in particular, giving this approach a clear advantage.
 
+ Update 2/2026 (M. Groom): added additional bindings for BL parameters
+
 Building and Installing the Python Module
 -----------------------------------------
 If you are on a Windows machine (64bit) with Python 3.6, installing XFoil is a simple matter of running:
