@@ -317,7 +317,7 @@ contains
         enddo
         LQSppl = .false.
     end subroutine filter
-
+    
     subroutine alfa_(a_input, cl_out, cd_out, cm_out, cp_out, conv) bind(c, name='alfa')
         use m_xoper, only: specal, viscal, fcpmin
         use i_xfoil
@@ -349,6 +349,77 @@ contains
         call fcpmin
         cp_out = CPMn
     end subroutine alfa_
+
+    subroutine alfa_full(a_input, cl_out, cd_out, cm_out, conv, &
+                         x_out, y_out, cp_out, tau_out, thet_out, dstr_out, tstr_out, &
+                         ncp) bind(c, name='alfa_full')
+        use m_xoper
+        use i_xfoil
+
+        real(c_float), intent(in) :: a_input
+        real(c_float), intent(out) :: cl_out, cd_out, cm_out
+        logical(c_bool), intent(out) :: conv
+        real(c_float), dimension(IZX), intent(out) :: x_out, y_out, cp_out, tau_out, thet_out, dstr_out, tstr_out
+        integer(c_int), intent(out) :: ncp
+        
+        integer :: i, idx
+        real :: beta, bfac, cpcom, cpinc, den
+        
+        ADEg = a_input
+
+        ALFa = a_input * DTOr
+        QINf = 1.0
+        LALfa = .true.
+        call specal
+        if (abs(ALFa - AWAke)>1.0E-5) LWAke = .false.
+        if (abs(ALFa - AVIsc)>1.0E-5) LVConv = .false.
+        if (abs(MINf - MVIsc)>1.0E-5) LVConv = .false.
+        !
+        if (LVIsc) then
+            conv = viscal(ITMax)
+            conv = LVConv .and. conv
+        else
+            conv = .true.
+        end if
+
+        cl_out = CL
+        cd_out = CD
+        cm_out = CM
+
+        ! get Cp
+        ncp = N
+        beta = sqrt(1.0 - MINf**2)
+        bfac = 0.5 * MINf**2 / (1.0 + beta)
+        do i = 1, N
+            cpinc = 1.0 - (GAM(i) / QINf)**2
+            den = beta + bfac * cpinc
+            cp_out(i) = cpinc / den
+            x_out(i) = X(i)
+            y_out(i) = Y(i)
+        end do
+        
+        ! get BL data
+        do i = NBL(1), 1, -1
+            idx = IPAN(i, 1)
+            if (idx <= N .and. idx > 0) then
+                tau_out(idx) = TAU(i, 1)
+                thet_out(idx) = THET(i, 1)
+                dstr_out(idx) = DSTR(i, 1)
+                tstr_out(idx) = TSTR(i, 1)
+            end if
+        end do
+        
+        do i = 1, NBL(2)
+            idx = IPAN(i, 2)
+            if (idx <= N .and. idx > 0) then
+                tau_out(idx) = TAU(i, 2)
+                thet_out(idx) = THET(i, 2)
+                dstr_out(idx) = DSTR(i, 2)
+                tstr_out(idx) = TSTR(i, 2)
+            end if
+        end do
+        
+    end subroutine alfa_full
 
     subroutine cl_(cl_input, a_out, cd_out, cm_out, cp_out, conv) bind(c, name='cl')
         use m_xoper, only: speccl, viscal, fcpmin
@@ -479,7 +550,6 @@ contains
             endif
         end do
     end subroutine cseq
-
 
     function get_n_cp() bind(c, name='get_n_cp')
         use i_xfoil, only: N

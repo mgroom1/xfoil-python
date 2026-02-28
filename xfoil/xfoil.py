@@ -31,6 +31,7 @@ lib_path = glob.glob(os.path.join(here, 'libxfoil.*'))[0]
 lib_ext = lib_path[lib_path.rfind('.'):]
 
 fptr = POINTER(c_float)
+iptr = POINTER(c_int)
 bptr = POINTER(c_bool)
 
 
@@ -217,6 +218,46 @@ class XFoil(object):
 
         return (cl.value, cd.value, cm.value, cp.value) if conv else (np.nan, np.nan, np.nan, np.nan)
 
+    def a_full(self, a):
+        
+        # max size
+        IQX = 640
+        IVX = 320
+        
+        cl = c_float()
+        cd = c_float()
+        cm = c_float()
+        conv = c_bool()
+        
+        x = np.zeros(IQX, dtype=c_float)
+        y = np.zeros(IQX, dtype=c_float)
+        cp = np.zeros(IQX, dtype=c_float)
+        tau = np.zeros(IVX, dtype=c_float)
+        thet = np.zeros(IVX, dtype=c_float)
+        dstr = np.zeros(IVX, dtype=c_float)
+        tstr = np.zeros(IVX, dtype=c_float)
+        
+        ncp = c_int()
+
+        self._lib.alfa_full(byref(c_float(a)), byref(cl), byref(cd), byref(cm), byref(conv),
+            x.ctypes.data_as(fptr), y.ctypes.data_as(fptr), cp.ctypes.data_as(fptr),
+            tau.ctypes.data_as(fptr), thet.ctypes.data_as(fptr), dstr.ctypes.data_as(fptr), tstr.ctypes.data_as(fptr),
+            byref(ncp))
+        
+        cl_out, cd_out, cm_out = (cl.value, cd.value, cm.value) if conv else (np.nan, np.nan, np.nan)
+        
+        # crop
+        n = ncp.value
+        x = x[:n]
+        y = y[:n]
+        cp = cp[:n]
+        tau = tau[:n]
+        thet = thet[:n]
+        dstr = dstr[:n]
+        tstr = tstr[:n]
+        
+        return cl, cd, cm, x, y, cp, tau, thet, dstr, tstr
+
     def cl(self, cl):
         """"Analyze airfoil at a fixed lift coefficient.
 
@@ -333,3 +374,4 @@ class XFoil(object):
 
         self._lib.get_cp(x.ctypes.data_as(fptr), y.ctypes.data_as(fptr), cp.ctypes.data_as(fptr), byref(c_int(n)))
         return x.astype(float), y.astype(float), cp.astype(float)
+    
