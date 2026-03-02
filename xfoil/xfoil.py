@@ -217,7 +217,28 @@ class XFoil(object):
         self._lib.alfa(byref(c_float(a)), byref(cl), byref(cd), byref(cm), byref(cp), byref(conv))
 
         return (cl.value, cd.value, cm.value, cp.value) if conv else (np.nan, np.nan, np.nan, np.nan)
+    
+    def a_bl_te(self, a):
+        cl = c_float()
+        cd = c_float()
+        cm = c_float()
+        
+        tau = np.zeros(2, dtype=c_float)
+        uedg = np.zeros(2, dtype=c_float)
+        delt = np.zeros(2, dtype=c_float)
+        dstr = np.zeros(2, dtype=c_float)
+        thet = np.zeros(2, dtype=c_float)
+        tstr = np.zeros(2, dtype=c_float)
+        
+        conv = c_bool()
 
+        self._lib.alfa_bl_te(byref(c_float(a)), byref(cl), byref(cd), byref(cm), 
+            tau.ctypes.data_as(fptr), uedg.ctypes.data_as(fptr), 
+            delt.ctypes.data_as(fptr), dstr.ctypes.data_as(fptr), 
+            thet.ctypes.data_as(fptr), tstr.ctypes.data_as(fptr), byref(conv))
+        
+        return cl, cd, cm, tau, delt, dstr, thet, tstr, conv
+    
     def a_full(self, a):
         
         # max size
@@ -233,18 +254,17 @@ class XFoil(object):
         y = np.zeros(IQX, dtype=c_float)
         cp = np.zeros(IQX, dtype=c_float)
         tau = np.zeros(IVX, dtype=c_float)
-        thet = np.zeros(IVX, dtype=c_float)
+        uedg = np.zeros(IVX, dtype=c_float)
+        delt = np.zeros(IVX, dtype=c_float)
         dstr = np.zeros(IVX, dtype=c_float)
+        thet = np.zeros(IVX, dtype=c_float)
         tstr = np.zeros(IVX, dtype=c_float)
         
         ncp = c_int()
 
         self._lib.alfa_full(byref(c_float(a)), byref(cl), byref(cd), byref(cm), byref(conv),
-            x.ctypes.data_as(fptr), y.ctypes.data_as(fptr), cp.ctypes.data_as(fptr),
-            tau.ctypes.data_as(fptr), thet.ctypes.data_as(fptr), dstr.ctypes.data_as(fptr), tstr.ctypes.data_as(fptr),
-            byref(ncp))
-        
-        cl_out, cd_out, cm_out = (cl.value, cd.value, cm.value) if conv else (np.nan, np.nan, np.nan)
+            x.ctypes.data_as(fptr), y.ctypes.data_as(fptr), cp.ctypes.data_as(fptr), tau.ctypes.data_as(fptr), uedg.ctypes.data_as(fptr),
+            delt.ctypes.data_as(fptr), dstr.ctypes.data_as(fptr), thet.ctypes.data_as(fptr), tstr.ctypes.data_as(fptr), byref(ncp))
         
         # crop
         n = ncp.value
@@ -252,11 +272,13 @@ class XFoil(object):
         y = y[:n]
         cp = cp[:n]
         tau = tau[:n]
-        thet = thet[:n]
+        uedg = uedg[:n]
+        delt = delt[:n]
         dstr = dstr[:n]
+        thet = thet[:n]
         tstr = tstr[:n]
         
-        return cl, cd, cm, x, y, cp, tau, thet, dstr, tstr
+        return cl, cd, cm, x, y, cp, tau, delt, dstr, thet, tstr, conv
 
     def cl(self, cl):
         """"Analyze airfoil at a fixed lift coefficient.

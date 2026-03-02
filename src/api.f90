@@ -349,9 +349,65 @@ contains
         call fcpmin
         cp_out = CPMn
     end subroutine alfa_
+    
+    subroutine alfa_bl_te(a_input, cl_out, cd_out, cm_out, tau_out, uedg_out, &
+                          delt_out, dstr_out, thet_out, tstr_out, &
+                          conv) bind(c, name='alfa_bl_te')
+        use m_xoper
+        use i_xfoil
+
+        real(c_float), intent(in) :: a_input
+        real(c_float), intent(out) :: cl_out, cd_out, cm_out
+        logical(c_bool), intent(out) :: conv
+        real(c_float), dimension(2), intent(out) :: tau_out, uedg_out, delt_out
+        real(c_float), dimension(2), intent(out) :: dstr_out, thet_out, tstr_out
+        
+        integer :: idx
+        real :: beta, bfac, cpcom, cpinc, den
+        
+        ADEg = a_input
+
+        ALFa = a_input * DTOr
+        QINf = 1.0
+        LALfa = .true.
+        call specal
+        if (abs(ALFa - AWAke)>1.0E-5) LWAke = .false.
+        if (abs(ALFa - AVIsc)>1.0E-5) LVConv = .false.
+        if (abs(MINf - MVIsc)>1.0E-5) LVConv = .false.
+        !
+        if (LVIsc) then
+            conv = viscal(ITMax)
+            conv = LVConv .and. conv
+        else
+            conv = .true.
+        end if
+
+        cl_out = CL
+        cd_out = CD
+        cm_out = CM
+        
+        ! get BL data
+        idx = IBLTE(1)
+        tau_out(1) = TAU(idx, 1)
+        uedg_out(1) = UEDG(idx, 1)
+        delt_out(1) = DELT(idx, 1)
+        dstr_out(1) = DSTR(idx, 1)
+        thet_out(1) = THET(idx, 1)
+        tstr_out(1) = TSTR(idx, 1)
+        
+        idx = IBLTE(2)
+        tau_out(2) = TAU(idx, 2)
+        uedg_out(2) = UEDG(idx, 2)
+        delt_out(2) = DELT(idx, 2)
+        dstr_out(2) = DSTR(idx, 2)
+        thet_out(2) = THET(idx, 2)
+        tstr_out(2) = TSTR(idx, 2)
+        
+    end subroutine alfa_bl_te
 
     subroutine alfa_full(a_input, cl_out, cd_out, cm_out, conv, &
-                         x_out, y_out, cp_out, tau_out, thet_out, dstr_out, tstr_out, &
+                         x_out, y_out, cp_out, tau_out, uedg_out, &
+                         delt_out, dstr_out, thet_out, tstr_out, &
                          ncp) bind(c, name='alfa_full')
         use m_xoper
         use i_xfoil
@@ -359,7 +415,8 @@ contains
         real(c_float), intent(in) :: a_input
         real(c_float), intent(out) :: cl_out, cd_out, cm_out
         logical(c_bool), intent(out) :: conv
-        real(c_float), dimension(IZX), intent(out) :: x_out, y_out, cp_out, tau_out, thet_out, dstr_out, tstr_out
+        real(c_float), dimension(IZX), intent(out) :: x_out, y_out, cp_out, tau_out, uedg_out
+        real(c_float), dimension(IZX), intent(out) :: delt_out, dstr_out, thet_out, tstr_out
         integer(c_int), intent(out) :: ncp
         
         integer :: i, idx
@@ -403,8 +460,10 @@ contains
             idx = IPAN(i, 1)
             if (idx <= N .and. idx > 0) then
                 tau_out(idx) = TAU(i, 1)
-                thet_out(idx) = THET(i, 1)
+                uedg_out(idx) = UEDG(i, 1)
+                delt_out(idx) = DELT(i, 1)
                 dstr_out(idx) = DSTR(i, 1)
+                thet_out(idx) = THET(i, 1)
                 tstr_out(idx) = TSTR(i, 1)
             end if
         end do
@@ -413,8 +472,10 @@ contains
             idx = IPAN(i, 2)
             if (idx <= N .and. idx > 0) then
                 tau_out(idx) = TAU(i, 2)
-                thet_out(idx) = THET(i, 2)
+                uedg_out(idx) = UEDG(i, 2)
+                delt_out(idx) = DELT(i, 2)
                 dstr_out(idx) = DSTR(i, 2)
+                thet_out(idx) = THET(i, 2)
                 tstr_out(idx) = TSTR(i, 2)
             end if
         end do
