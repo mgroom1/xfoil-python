@@ -216,7 +216,7 @@ class XFoil(object):
 
         self._lib.alfa(byref(c_float(a)), byref(cl), byref(cd), byref(cm), byref(cp), byref(conv))
 
-        return (cl.value, cd.value, cm.value, cp.value) if conv else (np.nan, np.nan, np.nan, np.nan)
+        return cl.value, cd.value, cm.value, cp.value, conv.value
     
     def a_bl_te(self, a):
         cl = c_float()
@@ -237,7 +237,9 @@ class XFoil(object):
             delt.ctypes.data_as(fptr), dstr.ctypes.data_as(fptr), 
             thet.ctypes.data_as(fptr), tstr.ctypes.data_as(fptr), byref(conv))
         
-        return cl, cd, cm, tau, delt, dstr, thet, tstr, conv
+        return cl.value, cd.value, cm.value, tau.astype(float), \
+            delt.astype(float), dstr.astype(float), thet.astype(float), \
+            tstr.astype(float), conv.value
     
     def a_full(self, a):
         
@@ -278,7 +280,10 @@ class XFoil(object):
         thet = thet[:n]
         tstr = tstr[:n]
         
-        return cl, cd, cm, x, y, cp, tau, delt, dstr, thet, tstr, conv
+        return cl.value, cd.value, cm.value, x.astype(float), y.astype(float), \
+            cp.astype(float), tau.astype(float), delt.astype(float), \
+            dstr.astype(float), thet.astype(float), tstr.astype(float), \
+            conv.value
 
     def cl(self, cl):
         """"Analyze airfoil at a fixed lift coefficient.
@@ -299,9 +304,10 @@ class XFoil(object):
         cp = c_float()
         conv = c_bool()
 
-        self._lib.cl(byref(c_float(cl)), byref(a), byref(cd), byref(cm), byref(cp), byref(conv))
+        self._lib.cl(byref(c_float(cl)), byref(a), byref(cd), byref(cm), 
+                     byref(cp), byref(conv))
 
-        return (a.value, cd.value, cm.value, cp.value) if conv else (np.nan, np.nan, np.nan, np.nan)
+        return a.value, cd.value, cm.value, cp.value, conv.value
 
     def aseq(self, a_start, a_end, a_step):
         """Analyze airfoil at a sequence of angles of attack.
@@ -338,7 +344,8 @@ class XFoil(object):
         cd[isnan] = np.nan
         cm[isnan] = np.nan
         cp[isnan] = np.nan
-        return a.astype(float), cl.astype(float), cd.astype(float), cm.astype(float), cp.astype(float)
+        return a.astype(float), cl.astype(float), cd.astype(float), \
+            cm.astype(float), cp.astype(float)
 
     def cseq(self, cl_start, cl_end, cl_step):
         """Analyze airfoil at a sequence of lift coefficients.
@@ -375,7 +382,8 @@ class XFoil(object):
         cd[isnan] = np.nan
         cm[isnan] = np.nan
         cp[isnan] = np.nan
-        return a.astype(float), cl.astype(float), cd.astype(float), cm.astype(float), cp.astype(float)
+        return a.astype(float), cl.astype(float), cd.astype(float), \
+            cm.astype(float), cp.astype(float)
 
     def get_cp_distribution(self):
         """Get the Cp distribution from the last converged point.
@@ -394,6 +402,7 @@ class XFoil(object):
         y = np.zeros(n, dtype=c_float)
         cp = np.zeros(n, dtype=c_float)
 
-        self._lib.get_cp(x.ctypes.data_as(fptr), y.ctypes.data_as(fptr), cp.ctypes.data_as(fptr), byref(c_int(n)))
+        self._lib.get_cp(x.ctypes.data_as(fptr), y.ctypes.data_as(fptr), 
+            cp.ctypes.data_as(fptr), byref(c_int(n)))
         return x.astype(float), y.astype(float), cp.astype(float)
     

@@ -362,9 +362,6 @@ contains
         real(c_float), dimension(2), intent(out) :: tau_out, uedg_out, delt_out
         real(c_float), dimension(2), intent(out) :: dstr_out, thet_out, tstr_out
         
-        integer :: idx
-        real :: beta, bfac, cpcom, cpinc, den
-        
         ADEg = a_input
 
         ALFa = a_input * DTOr
@@ -387,21 +384,19 @@ contains
         cm_out = CM
         
         ! get BL data
-        idx = IBLTE(1)
-        tau_out(1) = TAU(idx, 1)
-        uedg_out(1) = UEDG(idx, 1)
-        delt_out(1) = DELT(idx, 1)
-        dstr_out(1) = DSTR(idx, 1)
-        thet_out(1) = THET(idx, 1)
-        tstr_out(1) = TSTR(idx, 1)
+        tau_out(1) = TAU(IBLTE(1), 1)
+        uedg_out(1) = UEDG(IBLTE(1), 1)
+        delt_out(1) = DELT(IBLTE(1), 1)
+        dstr_out(1) = DSTR(IBLTE(1), 1)
+        thet_out(1) = THET(IBLTE(1), 1)
+        tstr_out(1) = TSTR(IBLTE(1), 1)
         
-        idx = IBLTE(2)
-        tau_out(2) = TAU(idx, 2)
-        uedg_out(2) = UEDG(idx, 2)
-        delt_out(2) = DELT(idx, 2)
-        dstr_out(2) = DSTR(idx, 2)
-        thet_out(2) = THET(idx, 2)
-        tstr_out(2) = TSTR(idx, 2)
+        tau_out(2) = TAU(IBLTE(2), 2)
+        uedg_out(2) = UEDG(IBLTE(2), 2)
+        delt_out(2) = DELT(IBLTE(2), 2)
+        dstr_out(2) = DSTR(IBLTE(2), 2)
+        thet_out(2) = THET(IBLTE(2), 2)
+        tstr_out(2) = TSTR(IBLTE(2), 2)
         
     end subroutine alfa_bl_te
 
