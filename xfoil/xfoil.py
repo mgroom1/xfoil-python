@@ -406,3 +406,16 @@ class XFoil(object):
             cp.ctypes.data_as(fptr), byref(c_int(n)))
         return x.astype(float), y.astype(float), cp.astype(float)
     
+    def get_section_properties(self):
+        
+        t = c_float()
+        c = c_float()
+        a = c_float()
+        le = c_float()
+        te = c_float()
+        
+        area = self._lib.get_section_properties(byref(t), byref(c), byref(a), 
+            byref(le), byref(te))
+        
+        return t.value, c.value, a.value, le.value, te.value
+

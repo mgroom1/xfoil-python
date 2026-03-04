@@ -28,6 +28,8 @@ cl, cd, cm, x, y, cp, tau, delt, dstr, thet, tstr, conv = xf.a_full(alpha)
 print(conv, conv2)
 print(cl, cl2, cd, cd2)
 
+print(xf.get_section_properties())
+
 fig, ax = plt.subplots()
 ax.plot(x2, cp2)
 ax.scatter(x, cp)

@@ -638,4 +638,21 @@ contains
         enddo
     end subroutine get_cp
 
+    subroutine get_section_properties(thickness, camber, area, LE_rad, &
+            TE_angle) bind(c, name='get_section_properties')
+        use i_xfoil
+        use m_xgeom
+        real(c_float), intent(out) :: thickness, camber, area, LE_rad, TE_angle
+        
+        call geopar(XB, XBP, YB, YBP, SB, NB, W1, SBLe, CHOrdb, AREab, &
+            RADble, ANGbte, EI11ba, EI22ba, APX1ba, APX2ba, EI11bt, EI22bt, APX1bt, &
+            & APX2bt, THIckb, CAMbrb)
+        
+        thickness = THICKB
+        camber = CAMBRB
+        area = AREAB
+        LE_rad = RADBLE
+        TE_angle = ANGBTE
+    end subroutine get_section_properties
+
 end module api
