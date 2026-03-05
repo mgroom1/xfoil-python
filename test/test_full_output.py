@@ -24,7 +24,7 @@ xf.filter()
 cl2, cd2, _, _, conv2 = xf.a(alpha)
 x2, y2, cp2 = xf.get_cp_distribution()
 
-cl, cd, cm, x, y, cp, tau, delt, dstr, thet, tstr, conv = xf.a_full(alpha)
+cl, cd, cm, x, y, cp, tau, uedg, delt, dstr, thet, tstr, conv = xf.a_full(alpha)
 print(conv, conv2)
 print(cl, cl2, cd, cd2)
 
@@ -59,7 +59,7 @@ ax.plot(x + Nx*dstr, y + Ny*dstr)
 ax.plot(x + Nx*thet, y + Ny*thet)
 ax.plot(x + Nx*tstr, y + Ny*tstr)
 
-cl, cd, cm, tau, delt, dstr, thet, tstr, conv = xf.a_bl_te(alpha)
+cl, cd, cm, tau, UEDG, dueds, delt, dstr, thet, tstr, conv = xf.a_bl_te(alpha)
 
 ax.scatter([x[0] + Nx[0]*delt[0], x[-1] + Nx[-1]*delt[1]],
            [y[0] + Ny[0]*delt[0], y[-1] + Ny[-1]*delt[1]])
@@ -71,6 +71,20 @@ ax.scatter([x[0] + Nx[0]*tstr[0], x[-1] + Nx[-1]*tstr[1]],
            [y[0] + Ny[0]*tstr[0], y[-1] + Ny[-1]*tstr[1]])
 
 ax.set_aspect('equal')
+
+# plot edge velocity
+fig, ax = plt.subplots()
+ax.plot(x, uedg)
+ax.scatter([x[0], x[-1]], [UEDG[0], UEDG[1]])
+
+# compare dueds
+xm = (x[1:]+x[:-1])/2
+ds = np.hypot(x[1:]-x[:-1], y[1:]-y[:-1])
+dueds_full = (uedg[1:] - uedg[:-1])/ds
+fig, ax = plt.subplots()
+ax.plot(xm, dueds_full)
+ax.scatter([xm[0], xm[-1]], [dueds[0], dueds[1]])
+
 plt.show()
 
 

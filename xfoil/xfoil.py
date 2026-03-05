@@ -225,6 +225,7 @@ class XFoil(object):
         
         tau = np.zeros(2, dtype=c_float)
         uedg = np.zeros(2, dtype=c_float)
+        dueds = np.zeros(2, dtype=c_float)
         delt = np.zeros(2, dtype=c_float)
         dstr = np.zeros(2, dtype=c_float)
         thet = np.zeros(2, dtype=c_float)
@@ -234,12 +235,14 @@ class XFoil(object):
 
         self._lib.alfa_bl_te(byref(c_float(a)), byref(cl), byref(cd), byref(cm), 
             tau.ctypes.data_as(fptr), uedg.ctypes.data_as(fptr), 
-            delt.ctypes.data_as(fptr), dstr.ctypes.data_as(fptr), 
-            thet.ctypes.data_as(fptr), tstr.ctypes.data_as(fptr), byref(conv))
+            dueds.ctypes.data_as(fptr), delt.ctypes.data_as(fptr), 
+            dstr.ctypes.data_as(fptr), thet.ctypes.data_as(fptr), 
+            tstr.ctypes.data_as(fptr), byref(conv))
         
         return cl.value, cd.value, cm.value, tau.astype(float), \
-            delt.astype(float), dstr.astype(float), thet.astype(float), \
-            tstr.astype(float), conv.value
+            uedg.astype(float), dueds.astype(float), delt.astype(float), \
+            dstr.astype(float), thet.astype(float), tstr.astype(float), \
+            conv.value
     
     def a_full(self, a):
         
@@ -281,9 +284,9 @@ class XFoil(object):
         tstr = tstr[:n]
         
         return cl.value, cd.value, cm.value, x.astype(float), y.astype(float), \
-            cp.astype(float), tau.astype(float), delt.astype(float), \
-            dstr.astype(float), thet.astype(float), tstr.astype(float), \
-            conv.value
+            cp.astype(float), tau.astype(float), uedg.astype(float), \
+            delt.astype(float), dstr.astype(float), thet.astype(float), \
+            tstr.astype(float), conv.value
 
     def cl(self, cl):
         """"Analyze airfoil at a fixed lift coefficient.

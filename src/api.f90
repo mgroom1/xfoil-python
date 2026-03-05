@@ -351,7 +351,7 @@ contains
     end subroutine alfa_
     
     subroutine alfa_bl_te(a_input, cl_out, cd_out, cm_out, tau_out, uedg_out, &
-                          delt_out, dstr_out, thet_out, tstr_out, &
+                          dueds, delt_out, dstr_out, thet_out, tstr_out, &
                           conv) bind(c, name='alfa_bl_te')
         use m_xoper
         use i_xfoil
@@ -359,8 +359,10 @@ contains
         real(c_float), intent(in) :: a_input
         real(c_float), intent(out) :: cl_out, cd_out, cm_out
         logical(c_bool), intent(out) :: conv
-        real(c_float), dimension(2), intent(out) :: tau_out, uedg_out, delt_out
-        real(c_float), dimension(2), intent(out) :: dstr_out, thet_out, tstr_out
+        real(c_float), dimension(2), intent(out) :: tau_out, uedg_out, dueds, &
+            delt_out, dstr_out, thet_out, tstr_out
+        
+        integer :: i
         
         ADEg = a_input
 
@@ -398,6 +400,13 @@ contains
         thet_out(2) = THET(IBLTE(2), 2)
         tstr_out(2) = TSTR(IBLTE(2), 2)
         
+        ! get streamwise edge velocity gradient
+        i = IPAN(IBLTE(1), 1)
+        dueds(1) = (UEDG(IBLTE(1), 1) - UEDG(IBLTE(1)-1, 1))/(S(i) - S(i+1))
+        
+        i = IPAN(IBLTE(2), 2)
+        dueds(2) = (UEDG(IBLTE(2), 2) - UEDG(IBLTE(2)-1, 2))/(S(i) - S(i-1))
+        
     end subroutine alfa_bl_te
 
     subroutine alfa_full(a_input, cl_out, cd_out, cm_out, conv, &
@@ -410,8 +419,8 @@ contains
         real(c_float), intent(in) :: a_input
         real(c_float), intent(out) :: cl_out, cd_out, cm_out
         logical(c_bool), intent(out) :: conv
-        real(c_float), dimension(IZX), intent(out) :: x_out, y_out, cp_out, tau_out, uedg_out
-        real(c_float), dimension(IZX), intent(out) :: delt_out, dstr_out, thet_out, tstr_out
+        real(c_float), dimension(IZX), intent(out) :: x_out, y_out, cp_out, &
+            tau_out, uedg_out, delt_out, dstr_out, thet_out, tstr_out
         integer(c_int), intent(out) :: ncp
         
         integer :: i, idx
