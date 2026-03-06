@@ -33,7 +33,6 @@ print(xf.get_section_properties())
 fig, ax = plt.subplots()
 ax.plot(x2, cp2)
 ax.scatter(x, cp)
-plt.show()
 
 dx = x[1:] - x[:-1]
 dy = y[1:] - y[:-1]
@@ -79,10 +78,12 @@ ax.scatter([x[0], x[-1]], [UEDG[0], UEDG[1]])
 
 # compare dueds
 xm = (x[1:]+x[:-1])/2
+N = len(xm)//2
 ds = np.hypot(x[1:]-x[:-1], y[1:]-y[:-1])
 dueds_full = (uedg[1:] - uedg[:-1])/ds
 fig, ax = plt.subplots()
-ax.plot(xm, dueds_full)
+ax.plot(xm[:N], dueds_full[:N])
+ax.plot(xm[N:], -dueds_full[N:])
 ax.scatter([xm[0], xm[-1]], [dueds[0], dueds[1]])
 
 plt.show()

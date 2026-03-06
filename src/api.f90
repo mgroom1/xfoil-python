@@ -405,7 +405,7 @@ contains
         dueds(1) = (UEDG(IBLTE(1), 1) - UEDG(IBLTE(1)-1, 1))/(S(i) - S(i+1))
         
         i = IPAN(IBLTE(2), 2)
-        dueds(2) = (UEDG(IBLTE(2), 2) - UEDG(IBLTE(2)-1, 2))/(S(i) - S(i-1))
+        dueds(2) = (UEDG(IBLTE(2), 2) - UEDG(IBLTE(2)-1, 2))/(S(i-1) - S(i))
         
     end subroutine alfa_bl_te
 
