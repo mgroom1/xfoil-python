@@ -225,7 +225,7 @@ class XFoil(object):
         
         tau = np.zeros(2, dtype=c_float)
         uedg = np.zeros(2, dtype=c_float)
-        dueds = np.zeros(2, dtype=c_float)
+        dpds = np.zeros(2, dtype=c_float)
         delt = np.zeros(2, dtype=c_float)
         dstr = np.zeros(2, dtype=c_float)
         thet = np.zeros(2, dtype=c_float)
@@ -235,12 +235,12 @@ class XFoil(object):
 
         self._lib.alfa_bl_te(byref(c_float(a)), byref(cl), byref(cd), byref(cm), 
             tau.ctypes.data_as(fptr), uedg.ctypes.data_as(fptr), 
-            dueds.ctypes.data_as(fptr), delt.ctypes.data_as(fptr), 
+            dpds.ctypes.data_as(fptr), delt.ctypes.data_as(fptr), 
             dstr.ctypes.data_as(fptr), thet.ctypes.data_as(fptr), 
             tstr.ctypes.data_as(fptr), byref(conv))
         
         return cl.value, cd.value, cm.value, tau.astype(float), \
-            uedg.astype(float), dueds.astype(float), delt.astype(float), \
+            uedg.astype(float), dpds.astype(float), delt.astype(float), \
             dstr.astype(float), thet.astype(float), tstr.astype(float), \
             conv.value
     

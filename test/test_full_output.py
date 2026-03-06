@@ -13,8 +13,8 @@ airfoil = Airfoil(x=x, y=y)
 xf = XFoil()
 xf.airfoil = airfoil
 
-xf.Re = 5000000
-xf.M = 0.2
+xf.Re = 1000000
+xf.M = 0.
 xf.n_crit = 9
 xf.max_iter = 50
 
@@ -33,6 +33,7 @@ print(xf.get_section_properties())
 fig, ax = plt.subplots()
 ax.plot(x2, cp2)
 ax.scatter(x, cp)
+ax.plot(x, 1 - uedg**2, ls='dashed')
 
 dx = x[1:] - x[:-1]
 dy = y[1:] - y[:-1]
@@ -58,7 +59,7 @@ ax.plot(x + Nx*dstr, y + Ny*dstr)
 ax.plot(x + Nx*thet, y + Ny*thet)
 ax.plot(x + Nx*tstr, y + Ny*tstr)
 
-cl, cd, cm, tau, UEDG, dueds, delt, dstr, thet, tstr, conv = xf.a_bl_te(alpha)
+cl, cd, cm, tau, UEDG, dpds, delt, dstr, thet, tstr, conv = xf.a_bl_te(alpha)
 
 ax.scatter([x[0] + Nx[0]*delt[0], x[-1] + Nx[-1]*delt[1]],
            [y[0] + Ny[0]*delt[0], y[-1] + Ny[-1]*delt[1]])
@@ -73,18 +74,23 @@ ax.set_aspect('equal')
 
 # plot edge velocity
 fig, ax = plt.subplots()
+uinv = np.sqrt(1-cp)
 ax.plot(x, uedg)
+ax.plot(x, uinv, ls='dashed')
 ax.scatter([x[0], x[-1]], [UEDG[0], UEDG[1]])
 
-# compare dueds
+# compare dpds
 xm = (x[1:]+x[:-1])/2
 N = len(xm)//2
 ds = np.hypot(x[1:]-x[:-1], y[1:]-y[:-1])
-dueds_full = -(uedg[1:] - uedg[:-1])/ds
+dcp_ds = -(cp[1:] - cp[:-1])/ds
+dp_ds = (uedg[1:]+uedg[:-1])/2*(uedg[1:] - uedg[:-1])/ds
 fig, ax = plt.subplots()
-ax.plot(xm[:N], dueds_full[:N])
-ax.plot(xm[N:], -dueds_full[N:])
-ax.scatter([xm[0], xm[-1]], [dueds[0], dueds[1]])
+ax.plot(xm[:N], dcp_ds[:N]/2)
+ax.plot(xm[:N], dp_ds[:N], ls='dashed')
+ax.plot(xm[N:], -dcp_ds[N:]/2)
+ax.plot(xm[N:], -dp_ds[N:], ls='dashed')
+ax.scatter([xm[0], xm[-1]], [dpds[0], dpds[1]])
 
 plt.show()
 

@@ -351,7 +351,7 @@ contains
     end subroutine alfa_
     
     subroutine alfa_bl_te(a_input, cl_out, cd_out, cm_out, tau_out, uedg_out, &
-                          dueds, delt_out, dstr_out, thet_out, tstr_out, &
+                          dpds, delt_out, dstr_out, thet_out, tstr_out, &
                           conv) bind(c, name='alfa_bl_te')
         use m_xoper
         use i_xfoil
@@ -359,10 +359,11 @@ contains
         real(c_float), intent(in) :: a_input
         real(c_float), intent(out) :: cl_out, cd_out, cm_out
         logical(c_bool), intent(out) :: conv
-        real(c_float), dimension(2), intent(out) :: tau_out, uedg_out, dueds, &
+        real(c_float), dimension(2), intent(out) :: tau_out, uedg_out, dpds, &
             delt_out, dstr_out, thet_out, tstr_out
         
         integer :: i
+        real :: ds
         
         ADEg = a_input
 
@@ -400,12 +401,14 @@ contains
         thet_out(2) = THET(IBLTE(2), 2)
         tstr_out(2) = TSTR(IBLTE(2), 2)
         
-        ! get streamwise edge velocity gradient
+        ! get pressure gradient from outer velocity
         i = IPAN(IBLTE(1), 1)
-        dueds(1) = (UEDG(IBLTE(1), 1) - UEDG(IBLTE(1)-1, 1))/(S(i+1) - S(i))
+        ds = sqrt((X(i)-X(i+1))**2 + (Y(i)-Y(i+1))**2)
+        dpds(1) = -UEDG(IBLTE(1),1)*(UEDG(IBLTE(1),1)-UEDG(IBLTE(1)-1,1))/ds
         
         i = IPAN(IBLTE(2), 2)
-        dueds(2) = (UEDG(IBLTE(2), 2) - UEDG(IBLTE(2)-1, 2))/(S(i) - S(i-1))
+        ds = sqrt((X(i)-X(i-1))**2 + (Y(i)-Y(i-1))**2)
+        dpds(2) = -UEDG(IBLTE(2),2)*(UEDG(IBLTE(2),2)-UEDG(IBLTE(2)-1,2))/ds
         
     end subroutine alfa_bl_te
 
