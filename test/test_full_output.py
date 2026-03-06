@@ -5,7 +5,7 @@ from xfoil import XFoil
 from xfoil.model import Airfoil
 
 file_name = 'naca2412-il.dat'
-alpha = -5
+alpha = 0
 
 x, y = np.genfromtxt(file_name, dtype=float, skip_header = 1).T
 airfoil = Airfoil(x=x, y=y)
@@ -13,8 +13,8 @@ airfoil = Airfoil(x=x, y=y)
 xf = XFoil()
 xf.airfoil = airfoil
 
-xf.Re = 1000000
-xf.M = 0.
+xf.Re = 5000000
+xf.M = 0.2
 xf.n_crit = 9
 xf.max_iter = 50
 
@@ -80,7 +80,7 @@ ax.scatter([x[0], x[-1]], [UEDG[0], UEDG[1]])
 xm = (x[1:]+x[:-1])/2
 N = len(xm)//2
 ds = np.hypot(x[1:]-x[:-1], y[1:]-y[:-1])
-dueds_full = (uedg[1:] - uedg[:-1])/ds
+dueds_full = -(uedg[1:] - uedg[:-1])/ds
 fig, ax = plt.subplots()
 ax.plot(xm[:N], dueds_full[:N])
 ax.plot(xm[N:], -dueds_full[N:])
