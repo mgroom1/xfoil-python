@@ -5,7 +5,7 @@ from xfoil import XFoil
 from xfoil.model import Airfoil
 
 file_name = 'naca2412-il.dat'
-alpha = 0
+alpha = 7
 
 x, y = np.genfromtxt(file_name, dtype=float, skip_header = 1).T
 airfoil = Airfoil(x=x, y=y)
@@ -59,16 +59,16 @@ ax.plot(x + Nx*dstr, y + Ny*dstr)
 ax.plot(x + Nx*thet, y + Ny*thet)
 ax.plot(x + Nx*tstr, y + Ny*tstr)
 
-cl, cd, cm, tau, UEDG, dpds, delt, dstr, thet, tstr, conv = xf.a_bl_te(alpha)
+cl, cd, cm, TAU, UEDG, dpds, delt, dstr, thet, tstr, conv = xf.a_bl_te(alpha)
 
-ax.scatter([x[0] + Nx[0]*delt[0], x[-1] + Nx[-1]*delt[1]],
-           [y[0] + Ny[0]*delt[0], y[-1] + Ny[-1]*delt[1]])
-ax.scatter([x[0] + Nx[0]*dstr[0], x[-1] + Nx[-1]*dstr[1]],
-           [y[0] + Ny[0]*dstr[0], y[-1] + Ny[-1]*dstr[1]])
-ax.scatter([x[0] + Nx[0]*thet[0], x[-1] + Nx[-1]*thet[1]],
-           [y[0] + Ny[0]*thet[0], y[-1] + Ny[-1]*thet[1]])
-ax.scatter([x[0] + Nx[0]*tstr[0], x[-1] + Nx[-1]*tstr[1]],
-           [y[0] + Ny[0]*tstr[0], y[-1] + Ny[-1]*tstr[1]])
+ax.scatter([x[1] + Nx[1]*delt[0], x[-2] + Nx[-2]*delt[1]],
+           [y[1] + Ny[1]*delt[0], y[-2] + Ny[-2]*delt[1]])
+ax.scatter([x[1] + Nx[1]*dstr[0], x[-2] + Nx[-2]*dstr[1]],
+           [y[1] + Ny[1]*dstr[0], y[-2] + Ny[-2]*dstr[1]])
+ax.scatter([x[1] + Nx[1]*thet[0], x[-2] + Nx[-2]*thet[1]],
+           [y[1] + Ny[1]*thet[0], y[-2] + Ny[-2]*thet[1]])
+ax.scatter([x[1] + Nx[1]*tstr[0], x[-2] + Nx[-2]*tstr[1]],
+           [y[1] + Ny[1]*tstr[0], y[-2] + Ny[-2]*tstr[1]])
 
 ax.set_aspect('equal')
 
@@ -77,7 +77,12 @@ fig, ax = plt.subplots()
 uinv = np.sqrt(1-cp)
 ax.plot(x, uedg)
 ax.plot(x, uinv, ls='dashed')
-ax.scatter([x[0], x[-1]], [UEDG[0], UEDG[1]])
+ax.scatter([x[1], x[-2]], [UEDG[0], UEDG[1]])
+
+# plot tau
+fig, ax = plt.subplots()
+cf = 2*tau
+ax.plot(x, cf)
 
 # compare dpds
 xm = (x[1:]+x[:-1])/2
@@ -90,7 +95,7 @@ ax.plot(xm[:N], dcp_ds[:N]/2)
 ax.plot(xm[:N], dp_ds[:N], ls='dashed')
 ax.plot(xm[N:], -dcp_ds[N:]/2)
 ax.plot(xm[N:], -dp_ds[N:], ls='dashed')
-ax.scatter([xm[0], xm[-1]], [dpds[0], dpds[1]])
+ax.scatter([xm[1], xm[-2]], [dpds[0], dpds[1]])
 
 plt.show()
 

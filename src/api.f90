@@ -363,7 +363,7 @@ contains
             delt_out, dstr_out, thet_out, tstr_out
         
         integer :: i
-        real :: ds
+        real :: ds, beta, bfac, cp1, cp2
         
         ADEg = a_input
 
@@ -387,28 +387,35 @@ contains
         cm_out = CM
         
         ! get BL data
-        tau_out(1) = TAU(IBLTE(1), 1)
-        uedg_out(1) = UEDG(IBLTE(1), 1)
-        delt_out(1) = DELT(IBLTE(1), 1)
-        dstr_out(1) = DSTR(IBLTE(1), 1)
-        thet_out(1) = THET(IBLTE(1), 1)
-        tstr_out(1) = TSTR(IBLTE(1), 1)
+        tau_out(1) = TAU(IBLTE(1)-1, 1)
+        uedg_out(1) = UEDG(IBLTE(1)-1, 1)
+        delt_out(1) = DELT(IBLTE(1)-1, 1)
+        dstr_out(1) = DSTR(IBLTE(1)-1, 1)
+        thet_out(1) = THET(IBLTE(1)-1, 1)
+        tstr_out(1) = TSTR(IBLTE(1)-1, 1)
         
-        tau_out(2) = TAU(IBLTE(2), 2)
-        uedg_out(2) = UEDG(IBLTE(2), 2)
-        delt_out(2) = DELT(IBLTE(2), 2)
-        dstr_out(2) = DSTR(IBLTE(2), 2)
-        thet_out(2) = THET(IBLTE(2), 2)
-        tstr_out(2) = TSTR(IBLTE(2), 2)
+        tau_out(2) = TAU(IBLTE(2)-1, 2)
+        uedg_out(2) = UEDG(IBLTE(2)-1, 2)
+        delt_out(2) = DELT(IBLTE(2)-1, 2)
+        dstr_out(2) = DSTR(IBLTE(2)-1, 2)
+        thet_out(2) = THET(IBLTE(2)-1, 2)
+        tstr_out(2) = TSTR(IBLTE(2)-1, 2)
         
-        ! get pressure gradient from outer velocity
-        i = IPAN(IBLTE(1), 1)
+        ! get pressure gradient
+        beta = sqrt(1.0 - MINf**2)
+        bfac = 0.5 * MINf**2 / (1.0 + beta)
+        
+        i = IPAN(IBLTE(1)-1, 1)
         ds = sqrt((X(i)-X(i+1))**2 + (Y(i)-Y(i+1))**2)
-        dpds(1) = -UEDG(IBLTE(1),1)*(UEDG(IBLTE(1),1)-UEDG(IBLTE(1)-1,1))/ds
+        cp1 = 1.0 - (GAM(i)/QINf)**2
+        cp2 = 1.0 - (GAM(i+1)/QINf)**2
+        dpds(1) = 0.5*(cp1/(beta + bfac*cp1) - cp2/(beta + bfac*cp2))/ds
         
-        i = IPAN(IBLTE(2), 2)
+        i = IPAN(IBLTE(2)-1, 2)
         ds = sqrt((X(i)-X(i-1))**2 + (Y(i)-Y(i-1))**2)
-        dpds(2) = -UEDG(IBLTE(2),2)*(UEDG(IBLTE(2),2)-UEDG(IBLTE(2)-1,2))/ds
+        cp1 = 1.0 - (GAM(i)/QINf)**2
+        cp2 = 1.0 - (GAM(i-1)/QINf)**2
+        dpds(2) = 0.5*(cp1/(beta + bfac*cp1) - cp2/(beta + bfac*cp2))/ds
         
     end subroutine alfa_bl_te
 
